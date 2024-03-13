@@ -85,12 +85,13 @@ if ($?) {
 $smtpServer = "mail.smtp2go.com"
 $smtpPort = 2525
 $from = "Loffler-NOCAlerts@loffler.com"
-$to = "josh.featherstone@loffler.com"
+$to = "itsginvoice@loffler.com"
 $SMTPUsername = "Loffler-NOCAlerts"
 $SMTPPassword = $env:SMTPEmailPassword
 [securestring]$secStringPassword = ConvertTo-SecureString $SMTPPassword -AsPlainText -Force
 [pscredential]$EmailCredential = New-Object System.Management.Automation.PSCredential ($SMTPUsername, $secStringPassword)
 $subject = "Sentinel One License Report"
+#todo: Figure out how to get newlines to work in body of email. The below doesn't work. Still sends the body just fine, just without newlines. 
 $body = @"
 Please find attached the Sentinel One License Report CSV file.
 If you have questions do not reply to this message, please send a message to the NOC in NOC-Toolkit or email NOCAlerts@loffler.com.
