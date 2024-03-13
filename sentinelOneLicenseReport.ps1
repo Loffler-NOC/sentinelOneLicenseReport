@@ -43,6 +43,15 @@ do {
 
 # Export data to CSV
 $csvFilePath = "C:\Temp\sites_data.csv"
+# Check if C:\Temp directory exists
+if (-not (Test-Path -Path "C:\Temp" -PathType Container)) {
+    # Create C:\Temp directory if it doesn't exist
+    New-Item -Path "C:\Temp" -ItemType Directory
+    Write-Host "C:\Temp directory created successfully."
+} else {
+    Write-Host "C:\Temp directory already exists."
+}
+#export to path
 $sitesData | Export-Csv -Path $csvFilePath -NoTypeInformation
 
 # Check if the module is installed
