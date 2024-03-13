@@ -1,11 +1,11 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$uri = "$env:S1SiteURI"
+$uri = "https://carvir-msp02.sentinelone.net"
 
 $apiUri = "/web/api/v2.1/sites"
 
 $body = @{
-    apiToken = "$env:S1ReportingApiToken"
+    apiToken = "9lVZHlvfrnV3AgHgkH7abJxH2W4zbck7i9i7BbM9ECqa1LYxFl792mCyMbGf0qfffHByXIWwh31XzXph"
     sortBy = "name"
 }
 
@@ -34,18 +34,66 @@ do {
 
     $nextCursor = $response.pagination.nextCursor
     $body = @{
-        apiToken = "$env:S1ReportingApiToken"
+        apiToken = "9lVZHlvfrnV3AgHgkH7abJxH2W4zbck7i9i7BbM9ECqa1LYxFl792mCyMbGf0qfffHByXIWwh31XzXph"
         cursor = $nextCursor
         sortBy = "name"
     }
     $response = Invoke-RestMethod -Uri $uri -Body $body
 } while ($null -ne $nextCursor)
 
-# Check if the directory exists, if not, create it
-$directory = "C:\Temp"
-if (!(Test-Path $directory)) {
-    New-Item -Path $directory -ItemType Directory
+# Export data to CSV
+$csvFilePath = "C:\Temp\sites_data.csv"
+$sitesData | Export-Csv -Path $csvFilePath -NoTypeInformation
+
+# Check if the module is installed
+if (-not (Get-Module -Name Mailozaurr -ListAvailable)) {
+    Write-Host "Mailozaurr module is not installed. Attempting to install..."
+    Install-Module -Name Mailozaurr -AllowClobber -Force
+    if ($?) {
+        Write-Host "Mailozaurr module installed successfully."
+        Import-Module -Name Mailozaurr -Force
+        Write-Host "Mailozaurr module imported."
+    } else {
+        Write-Host "Failed to install Mailozaurr module. Please check for errors."
+        exit
+    }
+} else {
+    Write-Host "Mailozaurr module is already installed."
+    Import-Module -Name Mailozaurr -Force
+    Write-Host "Mailozaurr module imported."
 }
 
-# Export data to CSV
-$sitesData | Export-Csv -Path "C:\Temp\sites_data.csv" -NoTypeInformation
+# Update the module
+Write-Host "Checking for updates to Mailozaurr module..."
+Update-Module -Name Mailozaurr
+if ($?) {
+    Write-Host "Mailozaurr module is up to date."
+} else {
+    Write-Host "Failed to update Mailozaurr module. Please check for errors."
+}
+
+# Send email with CSV attachment
+$smtpServer = "mail.smtp2go.com"
+$smtpPort = 2525
+$from = "Loffler-NOCAlerts@loffler.com"
+$to = "josh.featherstone@loffler.com"
+$SMTPUsername = "Loffler-NOCAlerts"
+$SMTPPassword = $env:SMTPEmailPassword
+[securestring]$secStringPassword = ConvertTo-SecureString $SMTPPassword -AsPlainText -Force
+[pscredential]$EmailCredential = New-Object System.Management.Automation.PSCredential ($SMTPUsername, $secStringPassword)
+$subject = "Sentinel One License Report"
+$body = "Please find attached the Sentinel One License Report CSV file. If you have questions do not reply to this message, please send a message to the NOC in NOC-Toolkit or email NOCAlerts@loffler.com."
+$attachment = $csvFilePath
+
+Send-EmailMessage `
+    -SmtpServer $smtpServer `
+    -Port $smtpPort `
+    -From $from `
+    -To $to `
+    -Credential $EmailCredential `
+    -Subject $subject `
+    -Body $body `
+    -Attachments $attachment `
+    
+
+
