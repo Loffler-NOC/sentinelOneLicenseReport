@@ -91,7 +91,7 @@ $SMTPPassword = $env:SMTPEmailPassword
 [securestring]$secStringPassword = ConvertTo-SecureString $SMTPPassword -AsPlainText -Force
 [pscredential]$EmailCredential = New-Object System.Management.Automation.PSCredential ($SMTPUsername, $secStringPassword)
 $subject = "Sentinel One License Report"
-$body = "Please find attached the Sentinel One License Report CSV file. If you have questions do not reply to this message, please send a message to the NOC in NOC-Toolkit or email NOCAlerts@loffler.com."
+$body = "Please find attached the Sentinel One License Report CSV file. `n If you have questions do not reply to this message, please send a message to the NOC in NOC-Toolkit or email NOCAlerts@loffler.com."
 $attachment = $csvFilePath
 
 Send-EmailMessage `
