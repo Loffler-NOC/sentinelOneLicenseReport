@@ -101,5 +101,5 @@ Send-EmailMessage `
     -Credential $EmailCredential `
     -Subject $subject `
     -Body $body `
-    -Attachments $attachment `
+    -Attachments $attachment
     
