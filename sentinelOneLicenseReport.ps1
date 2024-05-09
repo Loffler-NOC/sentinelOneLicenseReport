@@ -49,32 +49,10 @@ $csvFilePath = ".\sites_data.csv"
 #export to path
 $sitesData | Export-Csv -Path $csvFilePath -NoTypeInformation
 
-# Check if the module is installed
-if (-not (Get-Module -Name Mailozaurr -ListAvailable)) {
-    Write-Host "Mailozaurr module is not installed. Attempting to install..."
-    Install-Module -Name Mailozaurr -AllowClobber -Force
-    if ($?) {
-        Write-Host "Mailozaurr module installed successfully."
-        Import-Module -Name Mailozaurr -Force
-        Write-Host "Mailozaurr module imported."
-    } else {
-        Write-Host "Failed to install Mailozaurr module. Please check for errors."
-        exit
-    }
-} else {
-    Write-Host "Mailozaurr module is already installed."
-    Import-Module -Name Mailozaurr -Force
-    Write-Host "Mailozaurr module imported."
-}
-
-# Update the module
-Write-Host "Checking for updates to Mailozaurr module..."
-Update-Module -Name Mailozaurr
-if ($?) {
-    Write-Host "Mailozaurr module is up to date."
-} else {
-    Write-Host "Failed to update Mailozaurr module. Please check for errors."
-}
+# Install Mailozaurr
+Get-PackageProvider -Name NuGet -Force
+Install-Module -Name Mailozaurr -AllowClobber -Force
+Import-Module -Name Mailozaurr -Force
 
 # Send email with CSV attachment
 $smtpServer = $env:SMTPServer
